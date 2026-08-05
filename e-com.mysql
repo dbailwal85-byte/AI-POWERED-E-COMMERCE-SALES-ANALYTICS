@@ -1,0 +1,339 @@
+#Phase 8 — MySQL Database
+#Database Design
+#ER Diagram
+#Create Database
+#Create Tables
+#Primary Keys
+#Foreign Keys
+#Insert Data
+#SQL Queries
+#Views
+#Stored Procedures 
+
+
+CREATE DATABASE ecommerce_db;
+
+USE ecommerce_db;
+
+create table customers (
+customer_iD varchar(50) primary key,
+customer_Name varchar(100),Age int,Gender varchar (20),
+City varchar(50),
+Region varchar(50),
+Customer_Type varchar(50)
+);
+
+CREATE TABLE Products (
+
+Product_Name VARCHAR(150) PRIMARY KEY,
+Category VARCHAR(50),
+Sub_Category VARCHAR(50),
+Unit_Price DECIMAL(10,2)
+
+);
+
+CREATE TABLE Orders (
+
+Order_ID VARCHAR(20) PRIMARY KEY,Order_Date DATE,
+Customer_ID VARCHAR(20),Product_Name VARCHAR(150),Quantity INT,
+Sales DECIMAL(10,2),
+Discount DECIMAL(5,2),
+Profit DECIMAL(10,2),
+Payment_Method VARCHAR(50),
+Shipping_Mode VARCHAR(50),
+Customer_Rating DECIMAL(3,2),
+
+FOREIGN KEY(Customer_ID)
+REFERENCES Customers(Customer_ID),
+FOREIGN KEY(Product_Name)
+REFERENCES Products(Product_Name)
+
+);
+
+INSERT INTO Customers
+(Customer_ID, Customer_Name, Age, Gender, City, Region, Customer_Type)
+
+VALUES
+
+('C001','Rahul Sharma',25,'Male','Delhi','North','Regular'),
+('C002','Priya Singh',28,'Female','Mumbai','West','Premium'),
+('C003','Amit Kumar',32,'Male','Lucknow','North','Regular'),
+('C004','Sneha Patel',26,'Female','Ahmedabad','West','Premium'),
+('C005','Rohit Verma',30,'Male','Jaipur','North','Regular');
+
+INSERT INTO Products
+(Product_Name, Category, Sub_Category, Unit_Price)
+
+VALUES
+
+('Wireless Mouse','Electronics','Accessories',799.00),
+('Bluetooth Speaker','Electronics','Audio',2499.00),
+('Office Chair','Furniture','Chair',5999.00),
+('Running Shoes','Fashion','Footwear',2999.00),
+('Water Bottle','Home & Kitchen','Kitchen',499.00);
+
+INSERT INTO Orders
+(Order_ID, Order_Date, Customer_ID, Product_Name, Quantity, Sales,
+Discount, Profit, Payment_Method, Shipping_Mode, Customer_Rating)
+
+VALUES
+
+('O001','2025-01-10','C001','Wireless Mouse',2,1598.00,5.00,350.00,'UPI','Standard',4.5),
+
+('O002','2025-01-12','C002','Bluetooth Speaker',1,2499.00,10.00,650.00,'Credit Card','Express',4.8),
+
+('O003','2025-01-15','C003','Office Chair',1,5999.00,15.00,1200.00,'Debit Card','Standard',4.2),
+
+('O004','2025-01-18','C004','Running Shoes',2,5998.00,8.00,900.00,'Cash on Delivery','Express',4.6),
+
+('O005','2025-01-20','C005','Water Bottle',3,1497.00,5.00,250.00,'UPI','Standard',4.3);
+
+SHOW TABLES;
+
+DESCRIBE Customers;
+DESCRIBE Products;
+DESCRIBE Orders;
+
+SELECT * FROM Customers;
+SELECT * FROM Products;
+SELECT * FROM Orders;
+
+SELECT COUNT(*) FROM Customers;
+SELECT COUNT(*) FROM Products;
+SELECT COUNT(*) FROM Orders;
+
+SELECT Customer_Name
+FROM Customers;
+
+SELECT Product_Name
+FROM Products;
+
+SELECT Order_ID
+FROM Orders;
+
+SELECT DISTINCT City
+FROM Customers;
+
+SELECT DISTINCT Category
+FROM Products;
+
+SELECT *
+FROM Orders
+WHERE Sales > 5000;
+
+SELECT *
+FROM Orders
+WHERE Profit > 1000;
+
+SELECT *
+FROM Orders
+WHERE Quantity > 2;
+
+SELECT *
+FROM Customers
+WHERE Customer_Type='Premium';
+
+SELECT *
+FROM Customers
+WHERE Gender='Female';
+
+SELECT *
+FROM Products
+WHERE Category='Electronics';
+
+SELECT *
+FROM Products
+WHERE Unit_Price BETWEEN 500 AND 2000;
+
+SELECT *
+FROM Orders
+WHERE Payment_Method='UPI';
+
+SELECT *
+FROM Orders
+WHERE Shipping_Mode='Express';
+
+SELECT *
+FROM Customers
+WHERE City='Delhi';
+
+SELECT *
+FROM Customers
+WHERE Age > 30;
+
+
+SELECT *
+FROM Customers
+ORDER BY Age DESC;
+
+SELECT *
+FROM Products
+ORDER BY Unit_Price DESC;
+
+SELECT *
+FROM Orders
+ORDER BY Sales DESC
+LIMIT 10;
+
+
+SELECT SUM(Sales) AS Total_Revenue
+FROM Orders;
+
+SELECT SUM(Profit) AS Total_Profit
+FROM Orders;
+
+SELECT AVG(Customer_Rating) AS Avg_Rating
+FROM Orders;
+
+SELECT COUNT(*) AS Total_Orders
+FROM Orders;
+
+SELECT
+P.Category,
+SUM(O.Sales) AS Total_Sales
+FROM Orders O
+JOIN Products P
+ON O.Product_Name=P.Product_Name
+GROUP BY P.Category;
+
+SELECT
+C.Region,
+SUM(O.Sales) AS Total_Sales
+FROM Orders O
+JOIN Customers C
+ON O.Customer_ID=C.Customer_ID
+GROUP BY C.Region;
+
+SELECT
+Payment_Method,
+SUM(Sales) AS Revenue
+FROM Orders
+GROUP BY Payment_Method;
+
+SELECT
+Payment_Method,
+SUM(Sales) AS Revenue
+FROM Orders
+GROUP BY Payment_Method
+HAVING Revenue > 10000;
+
+SELECT
+C.Customer_Name,
+O.Order_ID,
+O.Sales
+FROM Customers C
+INNER JOIN Orders O
+ON C.Customer_ID=O.Customer_ID;
+
+SELECT
+P.Product_Name,
+P.Category,
+SUM(O.Quantity) AS Quantity_Sold,
+SUM(O.Sales) AS Revenue
+FROM Products P
+INNER JOIN Orders O
+ON P.Product_Name=O.Product_Name
+GROUP BY P.Product_Name,P.Category;
+
+SELECT
+Customer_ID,
+SUM(Sales) AS Revenue
+FROM Orders
+GROUP BY Customer_ID
+ORDER BY Revenue DESC
+LIMIT 10;
+
+SELECT
+Product_Name,
+SUM(Quantity) AS Quantity_Sold
+FROM Orders
+GROUP BY Product_Name
+ORDER BY Quantity_Sold DESC;
+
+SELECT
+MONTH(Order_Date) AS Month,
+SUM(Sales) AS Revenue
+FROM Orders
+GROUP BY Month;
+
+SELECT
+P.Category,
+SUM(O.Profit) AS Profit
+FROM Orders O
+JOIN Products P
+ON O.Product_Name=P.Product_Name
+GROUP BY P.Category;
+
+SELECT
+C.Region,
+SUM(O.Sales) AS Revenue
+FROM Orders O
+JOIN Customers C
+ON O.Customer_ID=C.Customer_ID
+GROUP BY C.Region;
+
+CREATE VIEW Customer_Revenue_View AS
+SELECT
+Customer_ID,
+SUM(Sales) AS Revenue
+FROM Orders
+GROUP BY Customer_ID;
+
+CREATE VIEW Monthly_Sales_View AS
+SELECT
+MONTH(Order_Date) AS Month,
+SUM(Sales) AS Revenue
+FROM Orders
+GROUP BY Month;
+
+CREATE VIEW Product_Performance_View AS
+SELECT
+Product_Name,
+SUM(Quantity) AS Quantity_Sold,
+SUM(Sales) AS Revenue
+FROM Orders
+GROUP BY Product_Name;
+
+DELIMITER $$
+
+CREATE PROCEDURE GetCustomerRevenue()
+BEGIN
+    SELECT Customer_ID,
+           SUM(Sales) AS Revenue
+    FROM Orders
+    GROUP BY Customer_ID;
+END$$
+
+DELIMITER ;
+
+CALL GetCustomerRevenue();
+
+
+DELIMITER $$
+
+CREATE PROCEDURE GetMonthlySales()
+BEGIN
+    SELECT MONTH(Order_Date) AS Month,
+           SUM(Sales) AS Revenue
+    FROM Orders
+    GROUP BY Month;
+END$$
+
+DELIMITER ;
+
+CALL GetMonthlySales();
+
+DELIMITER $$
+
+CREATE PROCEDURE TopSellingProducts()
+BEGIN
+    SELECT Product_Name,
+           SUM(Quantity) AS Quantity_Sold
+    FROM Orders
+    GROUP BY Product_Name
+    ORDER BY Quantity_Sold DESC;
+END$$
+
+DELIMITER ;
+
+CALL TopSellingProducts();
